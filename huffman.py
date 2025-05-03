@@ -47,7 +47,7 @@ def build_huffman(heap: list[Node]) -> Node:
     logging.info("Huffman tree building complete.")
     return heap[0]
 
-def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], str]:
+def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]:
     logging.info("Generating Huffman codes.")
     codes = {}
     code = []
@@ -99,7 +99,7 @@ def build_frequency_table(blocks: list[tuple[int, ...]]) -> dict[tuple[int, ...]
     logging.info("Frequency table building complete.")
     return table
 
-def compress(bit_array: list[int], block_size: int) -> dict[tuple[int, ...], str]:
+def compress(bit_array: list[int], block_size: int) -> tuple[list[int], dict[tuple[int, ...], tuple[int, ...]], int, int]:
     logging.info(f"Starting compression with block size {block_size}.")
     blocks = split_into_blocks(bit_array, block_size)
     freq_table = build_frequency_table(blocks)
@@ -113,7 +113,7 @@ def compress(bit_array: list[int], block_size: int) -> dict[tuple[int, ...], str
     logging.info("Compression complete.")
     return res, codes, len(res), len(bit_array)
 
-def encode(blocks, codes):
+def encode(blocks: list[tuple[int, ...]], codes: dict[tuple[int, ...], tuple[int, ...]]) -> list[int]:
     logging.info("Encoding blocks.")
     res = []
     for block in blocks:
