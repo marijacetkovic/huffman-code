@@ -2,7 +2,7 @@ import heapq
 #src https://www.geeksforgeeks.org/huffman-coding-in-python/
 
 class Node:
-    def __init__(self, symbol, freq):
+    def __init__(self, symbol: tuple[int, ...] | None, freq: int):
         self.symbol = symbol
         self.freq = freq
 
@@ -15,16 +15,16 @@ class Node:
         return self.freq < other.freq
 
 #builds min heap from frequency table 
-def build_heap(freq_table):
+def build_heap(freq_table: dict[tuple[int, ...], int]) -> list[Node]:
     min_heap = []
     for sym, freq in freq_table.items():
         node = Node(sym, freq)
         heapq.heappush(min_heap, node)
     return min_heap
 
-def build_huffman(heap):
+def build_huffman(heap: list[Node]) -> Node:
     #loop until only root left
-    while len(heap)>1:
+    while len(heap) > 1:
         #get two blocks with smallest freq
         l_child = heapq.heappop(heap)
         r_child = heapq.heappop(heap)
@@ -42,7 +42,7 @@ def build_huffman(heap):
     #no more symbols in heap return pointer to root
     return heap[0]
 
-def generate_huffman_codes(root):
+def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], str]:
     codes = {}
     stack = [(root, "")] 
     
@@ -65,7 +65,7 @@ def generate_huffman_codes(root):
 
 
 
-def split_into_blocks(bit_array, b_size):
+def split_into_blocks(bit_array: list[int], b_size: int) -> list[tuple[int, ...]]:
     #if cannot be split into perfect blocks pad
     if len(bit_array) % b_size != 0:
         padding = b_size - (len(bit_array) % b_size)
@@ -81,17 +81,13 @@ def split_into_blocks(bit_array, b_size):
 
     return blocks
 
-def build_frequency_table(blocks):
+def build_frequency_table(blocks: list[tuple[int, ...]]) -> dict[tuple[int, ...], int]:
     table = {}
     for block in blocks:
-        if block in table:
-            table[block] += 1
-        else:
-            table[block] = 1
-    #print(table)
+        table[block] = table.get(block, 0) + 1
     return table
 
-def compress(bit_array, block_size):
+def compress(bit_array: list[int], block_size: int) -> dict[tuple[int, ...], str]:
     blocks = split_into_blocks(bit_array, block_size)
     freq_table = build_frequency_table(blocks)
     heap = build_heap(freq_table)
