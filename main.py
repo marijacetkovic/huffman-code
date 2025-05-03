@@ -7,8 +7,8 @@ def main():
     data = read_pdf(config["PDF_FILE"])
     bit_array = to_bit_array(to_byte_array(data))
 
-    result = compress(bit_array, config["BLOCK_SIZE"])
-    print(result)
+    compressed_data, codes, compressed_len, original_len = compress(bit_array, config["BLOCK_SIZE"])
+    #print(compressed_data, compressed_len, original_len)
     
 if __name__ == "__main__":
     main()
