@@ -3,8 +3,9 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
+
 class Node:
-    def __init__(self, symbol, freq):
+    def __init__(self, symbol: tuple[int, ...] | None, freq: int):
         self.symbol = symbol
         self.freq = freq
         # children pointers
@@ -15,8 +16,9 @@ class Node:
     def __lt__(self, other):
         return self.freq < other.freq
 
+
 # builds min heap from frequency table
-def build_heap(freq_table):
+def build_heap(freq_table: dict[tuple[int, ...], int]) -> list[Node]:
     logging.info("Building heap from frequency table.")
     min_heap = []
     for sym, freq in freq_table.items():
@@ -25,7 +27,8 @@ def build_heap(freq_table):
     logging.info("Heap building complete.")
     return min_heap
 
-def build_huffman(heap):
+
+def build_huffman(heap: list[Node]) -> Node:
     logging.info("Building Huffman tree.")
     # loop until only root left
     while len(heap) > 1:
@@ -47,7 +50,8 @@ def build_huffman(heap):
     logging.info("Huffman tree building complete.")
     return heap[0]
 
-def generate_huffman_codes(root):
+
+def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]:
     logging.info("Generating Huffman codes.")
     codes = {}
     code = []
@@ -58,7 +62,7 @@ def generate_huffman_codes(root):
 
         # if leaf node assign code
         if node.symbol is not None:
-            #using binary tuples as code 
+            # using binary tuples as code
             codes[node.symbol] = tuple(code)
 
         # if internal node continue traversing the tree
@@ -72,7 +76,8 @@ def generate_huffman_codes(root):
     logging.info("Huffman code generation complete.")
     return codes
 
-def split_into_blocks(bit_array, b_size):
+
+def split_into_blocks(bit_array: list[int], b_size: int) -> list[tuple[int, ...]]:
     logging.info(f"Splitting bit array into blocks of size {b_size}.")
     # if cannot be split into perfect blocks pad
     if len(bit_array) % b_size != 0:
@@ -89,18 +94,18 @@ def split_into_blocks(bit_array, b_size):
     logging.info(f"Splitting into blocks complete, {len(blocks)} blocks created.")
     return blocks
 
-def build_frequency_table(blocks):
+
+def build_frequency_table(blocks: list[tuple[int, ...]]) -> dict[tuple[int, ...], int]:
     logging.info("Building frequency table.")
     table = {}
     for block in blocks:
-        if block in table:
-            table[block] += 1
-        else:
-            table[block] = 1
+        table[block] = table.get(block, 0) + 1
     logging.info("Frequency table building complete.")
     return table
 
-def compress(bit_array, block_size):
+
+def compress(bit_array: list[int], block_size: int) -> tuple[
+    list[int], dict[tuple[int, ...], tuple[int, ...]], int, int]:
     logging.info(f"Starting compression with block size {block_size}.")
     blocks = split_into_blocks(bit_array, block_size)
     freq_table = build_frequency_table(blocks)
@@ -114,13 +119,15 @@ def compress(bit_array, block_size):
     logging.info("Compression complete.")
     return res, codes, len(res), len(bit_array)
 
-def encode(blocks, codes):
+
+def encode(blocks: list[tuple[int, ...]], codes: dict[tuple[int, ...], tuple[int, ...]]) -> list[int]:
     logging.info("Encoding blocks.")
     res = []
     for block in blocks:
         res.extend(codes[block])
     logging.info("Encoding complete.")
     return res
+
 
 def decode(data):
     logging.info("Decoding data.")
