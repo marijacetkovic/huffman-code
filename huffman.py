@@ -1,7 +1,7 @@
 import heapq
-import logging
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+from main import logging
+from util import pad_bit_array
+#src https://www.geeksforgeeks.org/huffman-coding-in-python/
 
 
 class Node:
@@ -76,14 +76,10 @@ def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]
     logging.info("Huffman code generation complete.")
     return codes
 
-
 def split_into_blocks(bit_array: list[int], b_size: int) -> list[tuple[int, ...]]:
     logging.info(f"Splitting bit array into blocks of size {b_size}.")
     # if cannot be split into perfect blocks pad
-    if len(bit_array) % b_size != 0:
-        padding = b_size - (len(bit_array) % b_size)
-        # extend last block of data w zeros
-        bit_array = bit_array + [0] * padding
+    bit_array = pad_bit_array(bit_array, b_size)
 
     blocks = []
     # use b_size as step size for i
@@ -128,7 +124,27 @@ def encode(blocks: list[tuple[int, ...]], codes: dict[tuple[int, ...], tuple[int
     logging.info("Encoding complete.")
     return res
 
-
-def decode(data):
+def decode(encoded_bits: list[int], codes: dict[tuple[int, ...], tuple[int, ...]]) -> list[int]:
     logging.info("Decoding data.")
-    return data
+    
+    # reverse the codes dictionary 
+    reverse_codes = {v: k for k, v in codes.items()}
+    decoded_bits = []
+    current_code = []
+    
+    #loop over bits
+    for bit in encoded_bits:
+        current_code.append(bit)
+        code_tuple = tuple(current_code)
+        #if its a valid huffman code, get the original encoded block
+        if code_tuple in reverse_codes:
+            decoded_bits.extend(reverse_codes[code_tuple])
+
+            #reset code
+            current_code = []
+    
+    if current_code:
+        logging.error("There are leftover bits.")
+    
+    logging.info("Decoding complete.")
+    return decoded_bits

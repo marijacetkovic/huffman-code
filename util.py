@@ -1,11 +1,6 @@
-import pymupdf
-
-
-# src: https://pymupdf.readthedocs.io/en/latest/recipes-text.html
 def read_pdf(path: str) -> bytearray:
-    with pymupdf.open(path) as doc:
-        text = "".join([page.get_text() for page in doc])
-    return to_byte_array(text)
+    with open(path, "rb") as f:
+        return bytearray(f.read())
 
 
 # src: https://stackoverflow.com/questions/11624190/how-to-convert-string-to-byte-array-in-python
@@ -22,3 +17,7 @@ def to_bit_array(arr: bytearray) -> list[int]:
         bits = format(byte, '08b')
         bit_array.extend(int(b) for b in bits)
     return bit_array
+
+def pad_bit_array(bit_array: list[int], b_size: int) -> list[int]:
+    padding = (b_size - (len(bit_array) % b_size)) % b_size
+    return bit_array + [0] * padding
