@@ -57,6 +57,12 @@ def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]
     code = []
     stack = [(root, code)]
 
+    # special case only one symbol in the data
+    if root.symbol is not None:
+        codes[root.symbol] = (0,)
+        logging.info("Only one symbol in the tree. Assigned code 0.")
+        return codes
+    
     while stack:
         node, code = stack.pop()
 
@@ -73,7 +79,7 @@ def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]
             if node.left:
                 stack.append((node.left, code + [0]))
 
-    logging.info("Huffman code generation complete.")
+    logging.info(f"Huffman code generation complete, {len(codes)} codes created.")
     return codes
 
 def split_into_blocks(bit_array: list[int], b_size: int) -> list[tuple[int, ...]]:
@@ -96,7 +102,7 @@ def build_frequency_table(blocks: list[tuple[int, ...]]) -> dict[tuple[int, ...]
     table = {}
     for block in blocks:
         table[block] = table.get(block, 0) + 1
-    logging.info("Frequency table building complete.")
+    logging.info(f"Frequency table building complete. Unique blocks: {len(table)}")
     return table
 
 
@@ -145,6 +151,5 @@ def decode(encoded_bits: list[int], codes: dict[tuple[int, ...], tuple[int, ...]
     
     if current_code:
         logging.error("There are leftover bits.")
-    
     logging.info("Decoding complete.")
     return decoded_bits

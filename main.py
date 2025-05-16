@@ -11,7 +11,10 @@ def main():
     data = read_pdf(config["PDF_FILE"])
     b_size = config["BLOCK_SIZE"]
     original_bit_array = to_bit_array(data)
-
+    if not original_bit_array:
+            logging.warning("Input data is empty.")
+            return
+    
     compressed_data, codes, compressed_len, original_len = measure_time(
         "Compression",
         compress,
@@ -30,7 +33,8 @@ def main():
         compressed_data,
         codes
     )
-    test(decompressed_data, original_bit_array, b_size)
+    
+    test(original_bit_array, decompressed_data, b_size)
     
 
 if __name__ == "__main__":
