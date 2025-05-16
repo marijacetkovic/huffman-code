@@ -1,3 +1,6 @@
+import time
+from main import logging
+
 def read_pdf(path: str) -> bytearray:
     with open(path, "rb") as f:
         return bytearray(f.read())
@@ -21,3 +24,11 @@ def to_bit_array(arr: bytearray) -> list[int]:
 def pad_bit_array(bit_array: list[int], b_size: int) -> list[int]:
     padding = (b_size - (len(bit_array) % b_size)) % b_size
     return bit_array + [0] * padding
+
+#src: https://realpython.com/python-timer/
+def measure_time(label, func, *args):
+    start = time.perf_counter()
+    result = func(*args)
+    end = time.perf_counter()
+    logging.info(f"{label} took {end - start:.6f} seconds")
+    return result
