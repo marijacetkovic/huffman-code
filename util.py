@@ -1,4 +1,4 @@
-def read_pdf(path: str) -> bytearray:
+def read_file(path: str) -> bytearray:
     with open(path, "rb") as f:
         return bytearray(f.read())
 
