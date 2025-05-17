@@ -155,11 +155,11 @@ def decode(encoded_bits: list[int], codes: dict[tuple[int, ...], tuple[int, ...]
     return decoded_bits
 
 def compress_and_decompress(bit_array: list[int], block_size: int):
-    compressed_data, codes, compressed_len, original_len = measure_time(
-        "Compression", compress, bit_array, block_size
+    (compressed_data, codes, compressed_len, original_len), compression_time = measure_time(
+    "Compression", compress, bit_array, block_size
     )
     
-    # Log compression stats
+
     logging.info(f"Original length: {original_len} bits")
     logging.info(f"Compressed length: {compressed_len} bits")
     compression_ratio = round((compressed_len / original_len) * 10000) / 100  # in %
@@ -168,7 +168,14 @@ def compress_and_decompress(bit_array: list[int], block_size: int):
     logging.info(f"Compression ratio: {compression_ratio}%")
     logging.info(f"Reduction ratio: {reduction_ratio}%")
 
-    # Decompress
-    decompressed_data = measure_time("Decompression", decode, compressed_data, codes)
 
-    return compressed_data, decompressed_data, compression_ratio, reduction_ratio
+    decompressed_data, decompression_time = measure_time("Decompression", decode, compressed_data, codes)
+
+    return {
+            "compressed_data": compressed_data,
+            "decompressed_data": decompressed_data,
+            "compression_ratio": compression_ratio,
+            "reduction_ratio": reduction_ratio,
+            "compression_time": compression_time,
+            "decompression_time": decompression_time,
+    }
