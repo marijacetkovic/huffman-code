@@ -1,4 +1,10 @@
 {
-    "FILE_NAME": "./books/kafka.pdf",
-    "BLOCK_SIZE": 16
+    "PDF_FILE": "sample3.txt",
+    "BLOCK_SIZE": 16,
+    "BLOCK_SIZES": [4,8,16,32,64],
+    "TEST_FILES_SIZE": {
+        "small": "small.pdf",
+        "medium": "medium.pdf",
+        "large": "large.pdf"
+    }
 }

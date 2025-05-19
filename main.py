@@ -1,30 +1,23 @@
 import logging
 from config import load_config
-from huffman import *
 from util import *
+from huffman import *
 from test import *
 from tabulate import tabulate
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 BLOCK_SIZE = 16
+from plot import *
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+config = load_config()
 
 def main():
-    config = load_config()
-    data = read_file(config["FILE_NAME"])
-    b_size = config["BLOCK_SIZE"]
-    original_bit_array = to_bit_array(data)
+    data = file_to_bit_array(config["PDF_FILE"])
+    if data != None:
+        block_size = config["BLOCK_SIZE"]
+        run_all_tests(data,block_size)
 
-    compressed_data, codes, compressed_len, original_len = compress(original_bit_array, b_size)
-    logging.info(f"Original length: {original_len} bits")
-    logging.info(f"Compressed length: {compressed_len} bits")
-    logging.info(f"Compression ratio: {round(compressed_len/original_len*10000)/100}%")
-
-    
-    decompressed_data = decode(compressed_data, codes)
-    test(decompressed_data, original_bit_array, b_size)
-
-    test_different_file_types()
-    
 
 def test_different_file_types():
     FILE_NAMES = ["./books/kafka.txt", "./books/kafka.pdf", "./books/kafka.mobi", "./books/kafka.epub"]
