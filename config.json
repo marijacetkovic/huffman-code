@@ -1,6 +1,6 @@
 {
-    "PDF_FILE": "sample3.txt",
-    "BLOCK_SIZE": 16,
+    "PDF_FILE": "small.pdf",
+    "BLOCK_SIZE": 4,
     "BLOCK_SIZES": [4,8,16,32,64],
     "TEST_FILES_SIZE": {
         "small": "small.pdf",
