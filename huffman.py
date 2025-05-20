@@ -57,10 +57,14 @@ def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]
     code = []
     stack = [(root, code)]
 
+    total_weighted_length = 0
+    total_frequency = 0
+
     # special case only one symbol in the data
     if root.symbol is not None:
         codes[root.symbol] = (0,)
         logging.info("Only one symbol in the tree. Assigned code 0.")
+        print("Average code length: 1.0")
         return codes
     
     while stack:
@@ -70,6 +74,8 @@ def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]
         if node.symbol is not None:
             # using binary tuples as code
             codes[node.symbol] = tuple(code)
+            total_weighted_length += len(code) * node.freq
+            total_frequency += node.freq
 
         # if internal node continue traversing the tree
         else:
@@ -79,8 +85,9 @@ def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]
             if node.left:
                 stack.append((node.left, code + [0]))
 
-    logging.info(f"Huffman code generation complete, {len(codes)} codes created.")
+    logging.info(f"Huffman code generation complete, {len(codes)} codes created. Average code length: {total_weighted_length / total_frequency:.4f}")
     return codes
+
 
 def split_into_blocks(bit_array: list[int], b_size: int) -> list[tuple[int, ...]]:
     logging.info(f"Splitting bit array into blocks of size {b_size}.")
@@ -111,9 +118,11 @@ def compress(bit_array: list[int], block_size: int) -> tuple[
     logging.info(f"Starting compression with block size {block_size}.")
     blocks = split_into_blocks(bit_array, block_size)
     freq_table = build_frequency_table(blocks)
+    print(freq_table)
     heap = build_heap(freq_table)
     tree = build_huffman(heap)
     codes = generate_huffman_codes(tree)
+    print(codes)
 
     # encode using codes
     res = encode(blocks, codes)
