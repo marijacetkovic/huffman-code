@@ -1,63 +1,122 @@
 import logging
+
 from main import config
-from util import *
+from util import file_to_bit_array, pad_bit_array
 from huffman import compress_and_decompress
-from plot import *
+from plot import print_table, block_size_reduction_plot
 
-def run_all_tests(data: list[int], block_size: int):
-    #basic test for default block size
+def run_all_tests(data: list[int], block_size: int) -> None:
+    logging.info("Starting all tests...")
+
+    # Basic test for default block size
+    logging.info(f"Running basic test with block size: {block_size}")
     result = compress_and_decompress(data, block_size)
-    equals(data, result["decompressed_data"], block_size)
+    assert_equals(data, result["decompressed_data"], block_size)
 
-    # test different block sizes and plot
-    results = run_block_size_tests(data)
-    block_size_reduction_plot(results)
+    # Test for different file sizes
+    test_file_sizes()
 
-    # test compr/decompr times across diff file sizes
-    compression_times, decompression_times = test_time_by_file()
-    print_time_table(compression_times, decompression_times)
+    # Test for different file formats
+    test_file_formats()
 
+    # Test for different block sizes
+    test_block_sizes()
 
-def equals(original: list[int], decompressed: list[int], block_size: int) -> bool:
+    logging.info("All tests completed.")
+
+def assert_equals(original: list[int], decompressed: list[int], block_size: int) -> bool:
     padded_original = pad_bit_array(original, block_size)
-    
     if decompressed == padded_original:
         logging.info("Decompressed data matches original.")
         return True
     else:
-        logging.error("Decompressed data does not match original.")
+        print("Decompressed data does not match original.")
         return False
-    
-def run_block_size_tests(data: list[int]):
-    block_sizes = config["BLOCK_SIZES"]
-    results = []
+
+def test_file_sizes() -> None:
+    logging.info("Testing different file sizes...")
+    files = config["TEST_FILE_SIZES"]
+    results = run_compression_tests_for_files("File Size", files)
+    print_table(
+        "File Size",
+        results["file_names"],
+        results["compression_ratios"],
+        results["reductions"],
+        results["compression_times"],
+        results["decompression_times"],
+    )
+
+def test_file_formats() -> None:
+    logging.info("Testing different file formats...")
+    files = config["TEST_FILE_FORMATS"]
+    results = run_compression_tests_for_files("File Format", files)
+    print_table(
+        "File Format",
+        results["file_names"],
+        results["compression_ratios"],
+        results["reductions"],
+        results["compression_times"],
+        results["decompression_times"],
+    )
+
+def test_block_sizes() -> None:
+    logging.info("Testing different block sizes...")
+    file_path = config["PDF_FILE"]
+    block_sizes = config["TEST_BLOCK_SIZES"]
+
+    compression_ratios: list[float] = []
+    reductions: list[float] = []
+    compression_times: list[float] = []
+    decompression_times: list[float] = []
+    block_sizes_to_reductions: list[tuple[int, float]] = []
+
+    data = file_to_bit_array(file_path)
 
     for block_size in block_sizes:
-        logging.info(f"Testing block size: {block_size}")
+        logging.info(f"Testing block size {block_size}...")
         result = compress_and_decompress(data, block_size)
+        compression_ratios.append(result["compression_ratio"])
+        reductions.append(result["reduction"])
+        compression_times.append(result["compression_time"])
+        decompression_times.append(result["decompression_time"])
+        block_sizes_to_reductions.append((block_size, result["reduction"]))
 
-        logging.info(f"Compression ratio: {result['compression_ratio']:.2f}%")
-        logging.info(f"Reduction ratio: {result['reduction_ratio']:.2f}%")
+    print_table(
+        "Block Size",
+        block_sizes,
+        compression_ratios,
+        reductions,
+        compression_times,
+        decompression_times,
+    )
 
-        if equals(data, result["decompressed_data"], block_size):
-            logging.info(f"Test passed for block size {block_size}\n")
-            results.append((block_size, result["reduction_ratio"]))
-        else:
-            logging.error(f"Test failed for block size {block_size}\n")
-
-    return results
+    block_size_reduction_plot(block_sizes_to_reductions)
 
 
-def test_time_by_file(block_size: int = 16):
-    FILES = config["TEST_FILES_SIZE"]
-    compression_times = []
-    decompression_times = []
+def run_compression_tests_for_files(
+        test_name: str, files: dict[str, str]
+) -> dict[str, list[object]]:
+    compression_ratios: list[float] = []
+    reductions: list[float] = []
+    compression_times: list[float] = []
+    decompression_times: list[float] = []
+    block_size = config["BLOCK_SIZE"]
 
-    for name, path in FILES.items():
-        print(f"Testing {name}...")
+    for name, path in files.items():
+        logging.info(f"Testing {name} for {test_name}...")
         data = file_to_bit_array(path)
         result = compress_and_decompress(data, block_size)
-        compression_times.append((name, result["compression_time"]))
-        decompression_times.append((name, result["decompression_time"]))
+        assert_equals(data, result["decompressed_data"], block_size)
 
-    return compression_times, decompression_times
+        compression_ratios.append(result["compression_ratio"])
+        reductions.append(result["reduction"])
+        compression_times.append(result["compression_time"])
+        decompression_times.append(result["decompression_time"])
+
+    return {
+        "file_names": list(files.keys()),
+        "compression_ratios": compression_ratios,
+        "reductions": reductions,
+        "compression_times": compression_times,
+        "decompression_times": decompression_times,
+    }

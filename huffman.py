@@ -158,15 +158,14 @@ def compress_and_decompress(bit_array: list[int], block_size: int):
     (compressed_data, codes, compressed_len, original_len), compression_time = measure_time(
     "Compression", compress, bit_array, block_size
     )
-    
 
     logging.info(f"Original length: {original_len} bits")
     logging.info(f"Compressed length: {compressed_len} bits")
-    compression_ratio = round((compressed_len / original_len) * 10000) / 100  # in %
-    reduction_ratio = 100 - compression_ratio
+    compression_ratio = original_len / compressed_len
+    reduction = (1 - (compressed_len / original_len)) * 100.0
 
-    logging.info(f"Compression ratio: {compression_ratio}%")
-    logging.info(f"Reduction ratio: {reduction_ratio}%")
+    logging.info(f"Compression ratio: {compression_ratio}")
+    logging.info(f"Reduction: {reduction}%")
 
 
     decompressed_data, decompression_time = measure_time("Decompression", decode, compressed_data, codes)
@@ -175,7 +174,7 @@ def compress_and_decompress(bit_array: list[int], block_size: int):
             "compressed_data": compressed_data,
             "decompressed_data": decompressed_data,
             "compression_ratio": compression_ratio,
-            "reduction_ratio": reduction_ratio,
+            "reduction": reduction,
             "compression_time": compression_time,
             "decompression_time": decompression_time,
     }
