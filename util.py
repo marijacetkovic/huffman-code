@@ -1,7 +1,7 @@
 import time
 import logging
 
-def read_pdf(path: str) -> bytearray:
+def read_file(path: str) -> bytearray | None:
     try:
         with open(path, "rb") as f:
             return bytearray(f.read())
@@ -21,7 +21,7 @@ def pad_bit_array(bit_array: list[int], b_size: int) -> list[int]:
     return bit_array + [0] * padding
 
 def file_to_bit_array(file_path: str) -> list[int] | None:
-    data = read_pdf(file_path)
+    data = read_file(file_path)
     if data is None:
         logging.warning("File not found.")
         return None

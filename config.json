@@ -1,10 +1,16 @@
 {
-    "PDF_FILE": "small.pdf",
-    "BLOCK_SIZE": 4,
-    "BLOCK_SIZES": [4,8,16,32,64],
-    "TEST_FILES_SIZE": {
-        "small": "small.pdf",
-        "medium": "medium.pdf",
-        "large": "large.pdf"
+    "PDF_FILE": "test_files/sizes/small.pdf",
+    "BLOCK_SIZE": 16,
+    "TEST_BLOCK_SIZES": [4, 8, 16, 32, 64],
+    "TEST_FILE_SIZES": {
+        "small": "test_files/sizes/small.pdf",
+        "medium": "test_files/sizes/medium.pdf",
+        "large": "test_files/sizes/large.pdf"
+    },
+    "TEST_FILE_FORMATS": {
+        "pdf": "test_files/formats/small.pdf",
+        "txt": "test_files/formats/small.txt",
+        "djvu": "test_files/formats/small.djvu",
+        "mobi": "test_files/formats/small.mobi"
     }
 }
