@@ -8,7 +8,7 @@ config = load_config()
 
 def main():
     data = file_to_bit_array(config["PDF_FILE"])
-    if data != None:
+    if data is not None:
         block_size = config["BLOCK_SIZE"]
         run_all_tests(data,block_size)
 
