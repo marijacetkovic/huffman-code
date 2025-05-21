@@ -5,39 +5,38 @@ from util import pad_bit_array, measure_time
 
 
 class Node:
-    def __init__(self, symbol: tuple[int, ...] | None, freq: int):
+    def __init__(self, symbol: tuple[int, ...] | None, prob: int):
         self.symbol = symbol
-        self.freq = freq
+        self.prob = prob
         # children pointers
         self.left = None
         self.right = None
 
     # needed for heapq to sort frequencies
     def __lt__(self, other):
-        return self.freq < other.freq
+        return self.prob < other.prob
 
 
-# builds min heap from frequency table
-def build_heap(freq_table: dict[tuple[int, ...], int]) -> list[Node]:
-    logging.info("Building heap from frequency table.")
+# builds min heap from probability table
+def build_heap(prob_table: dict[tuple[int, ...], float]) -> list[Node]:
+    logging.info("Building heap from probability table.")
     min_heap = []
-    for sym, freq in freq_table.items():
-        node = Node(sym, freq)
+    for sym, prob in prob_table.items():
+        node = Node(sym, prob)
         heapq.heappush(min_heap, node)
     logging.info("Heap building complete.")
     return min_heap
-
 
 def build_huffman(heap: list[Node]) -> Node:
     logging.info("Building Huffman tree.")
     # loop until only root left
     while len(heap) > 1:
-        # get two blocks with smallest freq
+        # get two blocks with smallest prob
         l_child = heapq.heappop(heap)
         r_child = heapq.heappop(heap)
 
         # create new internal node w sum of freq and no symbol
-        node = Node(None, l_child.freq + r_child.freq)
+        node = Node(None, l_child.prob + r_child.prob)
 
         # connect to child nodes
         node.left = l_child
@@ -56,15 +55,15 @@ def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]
     codes = {}
     code = []
     stack = [(root, code)]
+    
 
     total_weighted_length = 0
-    total_frequency = 0
+    total_probability = 0
 
     # special case only one symbol in the data
     if root.symbol is not None:
         codes[root.symbol] = (0,)
-        logging.info("Only one symbol in the tree. Assigned code 0.")
-        print("Average code length: 1.0")
+        logging.info("Only one symbol in the tree. Assigned code 0. Average code length: 1.0")
         return codes
     
     while stack:
@@ -74,8 +73,8 @@ def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]
         if node.symbol is not None:
             # using binary tuples as code
             codes[node.symbol] = tuple(code)
-            total_weighted_length += len(code) * node.freq
-            total_frequency += node.freq
+            total_weighted_length += len(code) * node.prob
+            total_probability += node.prob
 
         # if internal node continue traversing the tree
         else:
@@ -85,7 +84,7 @@ def generate_huffman_codes(root: Node) -> dict[tuple[int, ...], tuple[int, ...]]
             if node.left:
                 stack.append((node.left, code + [0]))
 
-    logging.info(f"Huffman code generation complete, {len(codes)} codes created. Average code length: {total_weighted_length / total_frequency:.4f}")
+    logging.info(f"Huffman code generation complete, {len(codes)} codes created. Average code length: {total_weighted_length / total_probability:.4f}")
     return codes
 
 
@@ -104,21 +103,28 @@ def split_into_blocks(bit_array: list[int], b_size: int) -> list[tuple[int, ...]
     return blocks
 
 
-def build_frequency_table(blocks: list[tuple[int, ...]]) -> dict[tuple[int, ...], int]:
-    logging.info("Building frequency table.")
-    table = {}
+def build_probability_table(blocks: list[tuple[int, ...]]) -> dict[tuple[int, ...], float]:
+    logging.info("Building probability table.")
+    # count raw frequencies
+    freq_table = {}
+    total_blocks = len(blocks)
+    
     for block in blocks:
-        table[block] = table.get(block, 0) + 1
-    logging.info(f"Frequency table building complete. Unique blocks: {len(table)}")
-    return table
-
+        freq_table[block] = freq_table.get(block, 0) + 1
+    
+    # convert to probabilities
+    prob_table = {block: count/total_blocks 
+                 for block, count in freq_table.items()}
+    
+    logging.info(f"Probability table building complete. Unique blocks: {len(prob_table)}")
+    return prob_table
 
 def compress(bit_array: list[int], block_size: int) -> tuple[
     list[int], dict[tuple[int, ...], tuple[int, ...]], int, int]:
     logging.info(f"Starting compression with block size {block_size}.")
     blocks = split_into_blocks(bit_array, block_size)
-    freq_table = build_frequency_table(blocks)
-    heap = build_heap(freq_table)
+    prob_table = build_probability_table(blocks)
+    heap = build_heap(prob_table)
     tree = build_huffman(heap)
     codes = generate_huffman_codes(tree)
 
