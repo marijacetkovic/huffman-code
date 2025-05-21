@@ -14,13 +14,13 @@ def run_all_tests(data: list[int], block_size: int) -> None:
     assert_equals(data, result["decompressed_data"], block_size)
 
     # Test for different file sizes
-    #test_file_sizes()
+    test_file_sizes()
 
     # Test for different file formats
-    #test_file_formats()
+    test_file_formats()
 
     # Test for different block sizes
-    #test_block_sizes()
+    test_block_sizes()
 
     # test for different content entropy
     test_entropy()
