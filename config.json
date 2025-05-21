@@ -12,5 +12,9 @@
         "txt": "test_files/formats/small.txt",
         "djvu": "test_files/formats/small.djvu",
         "mobi": "test_files/formats/small.mobi"
+    },
+    "TEST_ENTROPY": {
+        "low": "test_files/entropy/low_entropy.txt",
+        "high": "test_files/entropy/high_entropy.txt"
     }
 }

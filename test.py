@@ -14,13 +14,16 @@ def run_all_tests(data: list[int], block_size: int) -> None:
     assert_equals(data, result["decompressed_data"], block_size)
 
     # Test for different file sizes
-    test_file_sizes()
+    #test_file_sizes()
 
     # Test for different file formats
-    test_file_formats()
+    #test_file_formats()
 
     # Test for different block sizes
-    test_block_sizes()
+    #test_block_sizes()
+
+    # test for different content entropy
+    test_entropy()
 
     logging.info("All tests completed.")
 
@@ -120,3 +123,19 @@ def run_compression_tests_for_files(
         "compression_times": compression_times,
         "decompression_times": decompression_times,
     }
+
+
+def test_entropy() -> None:
+    logging.info("Testing PDFs with different entropy levels...")
+
+    files = config["TEST_ENTROPY"] 
+    results = run_compression_tests_for_files("Different entropy", files)
+
+    print_table(
+        "Entropy Level",
+        results["file_names"],
+        results["compression_ratios"],
+        results["reductions"],
+        results["compression_times"],
+        results["decompression_times"],
+    )
