@@ -118,11 +118,9 @@ def compress(bit_array: list[int], block_size: int) -> tuple[
     logging.info(f"Starting compression with block size {block_size}.")
     blocks = split_into_blocks(bit_array, block_size)
     freq_table = build_frequency_table(blocks)
-    print(freq_table)
     heap = build_heap(freq_table)
     tree = build_huffman(heap)
     codes = generate_huffman_codes(tree)
-    print(codes)
 
     # encode using codes
     res = encode(blocks, codes)
